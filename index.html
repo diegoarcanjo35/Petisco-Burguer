@@ -1,13 +1,1296 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Petiscos Burguer — Salinas/MG</title>
+  <meta name="description" content="Petiscos Burguer — O melhor hambúrguer de Salinas. Pedido online, entrega rápida e artesanal." />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0f0f0f;
+      --card: #141414;
+      --muted: rgba(255,255,255,.55);
+      --muted2: rgba(255,255,255,.35);
+      --border: rgba(255,255,255,.08);
+      --shadow: 0 22px 80px rgba(0,0,0,.55);
+
+      --red: #B30000;
+      --yellow: #FFCC00;
+      --wa: #25D366;
+
+      --radius-xl: 28px;
+      --radius-2xl: 36px;
+      --radius-3xl: 48px;
+
+      --container: 1180px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color:#fff;
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+    .container{
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Subtle glow blobs */
+    .blob{
+      position:absolute; inset:auto;
+      width:420px; height:420px;
+      filter: blur(120px);
+      border-radius:999px;
+      opacity:.9;
+      pointer-events:none;
+    }
+    .blob.red{background: rgba(179,0,0,.12); left:-140px; top:18vh;}
+    .blob.yellow{background: rgba(255,204,0,.10); right:-160px; bottom:10vh;}
+
+    /* Navbar */
+    .nav{
+      position:fixed; top:0; left:0; right:0;
+      z-index:50;
+      transition: all .35s ease;
+      padding: 28px 0;
+      background: transparent;
+    }
+    .nav.scrolled{
+      padding: 14px 0;
+      background: rgba(15,15,15,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    }
+    .nav-row{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      transform-origin:left center;
+    }
+    .brand .burger-icon{
+      width:28px; height:28px; flex:0 0 auto;
+      display:grid; place-items:center;
+      background: rgba(255,204,0,.12);
+      border: 1px solid rgba(255,204,0,.25);
+      border-radius: 12px;
+    }
+    .brand h1{
+      margin:0;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      line-height:1;
+      font-size: 18px;
+      white-space:nowrap;
+    }
+    .brand h1 .w{color:#fff}
+    .brand h1 .y{color:var(--yellow)}
+    .brand .sub{
+      margin-top:4px;
+      font-size: 10px;
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: rgba(255,255,255,.26);
+    }
+
+    .nav-links{
+      display:none;
+      align-items:center;
+      gap:34px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing:.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.40);
+    }
+    .nav-links a{
+      position:relative;
+      padding: 8px 0;
+      transition: color .2s ease;
+    }
+    .nav-links a:hover{color: var(--yellow)}
+    .nav-links a::after{
+      content:"";
+      position:absolute;
+      left:0; bottom:2px;
+      width:0; height:2px;
+      background: var(--red);
+      transition: width .25s ease;
+    }
+    .nav-links a:hover::after{width:100%}
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      border: 1px solid transparent;
+      cursor:pointer;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:active{transform: scale(.98)}
+    .btn-primary{
+      background: var(--red);
+      color:#fff;
+      box-shadow: 0 18px 40px rgba(179,0,0,.22);
+    }
+    .btn-primary:hover{background: #a20000; transform: translateY(-1px)}
+    .btn-ghost{
+      background: rgba(255,255,255,.05);
+      border-color: rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .btn-ghost:hover{background: rgba(255,255,255,.10)}
+    .btn-yellow{
+      background: var(--yellow);
+      color: #111;
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+    }
+    .btn-yellow:hover{transform: translateY(-1px)}
+
+    .icon-arrow{
+      width:16px; height:16px;
+      display:inline-block;
+    }
+
+    /* Hero */
+    .hero{
+      position:relative;
+      min-height: 100vh;
+      padding: 140px 0 80px;
+      overflow:hidden;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items:center;
+      gap: 34px;
+    }
+    .hero-left{
+      position:relative;
+      z-index:2;
+    }
+    .headline{
+      margin:0 0 18px;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+
+      /* menor que o React (pra não “estourar”) */
+      font-size: clamp(38px, 4.4vw, 72px);
+    }
+    .headline .w{color:#fff}
+    .headline .y{color: var(--yellow)}
+    .badges{
+      display:flex; flex-wrap:wrap;
+      gap: 10px;
+      margin: 18px 0 18px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.82);
+    }
+    .badge svg{width:16px; height:16px; color: var(--yellow)}
+    .lead{
+      max-width: 560px;
+      margin: 0 0 26px;
+      color: rgba(255,255,255,.52);
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+    .hero-cta{
+      display:flex; gap:12px; flex-wrap:wrap;
+      align-items:center;
+      margin-top: 18px;
+    }
+    .micro{
+      margin-top: 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,.35);
+      font-weight: 600;
+    }
+    .micro .ok{color: rgba(255,204,0,.9); font-weight: 900}
+
+    .hero-right{
+      position:relative;
+      z-index:2;
+      display:flex; justify-content:flex-end;
+    }
+    .hero-media{
+      position:relative;
+      width: min(520px, 100%);
+    }
+    .hero-media img{
+      width:100%;
+      height:auto;
+      border-radius: 28px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .price-badge{
+      position:absolute;
+      top:-18px; right:-18px;
+      width: 140px; height: 140px;
+      border-radius: 999px;
+      background: var(--yellow);
+      color:#111;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-transform: uppercase;
+      font-weight: 900;
+      transform: rotate(10deg);
+      border: 8px solid var(--bg);
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+    }
+    .price-badge .small{font-size: 11px; letter-spacing:.06em}
+    .price-badge .big{font-size: 44px; line-height:1; margin-top: 6px}
+
+    /* Steps */
+    .steps{
+      position:relative;
+      z-index:3;
+      padding: 18px 0;
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.02);
+      backdrop-filter: blur(8px);
+    }
+    .steps-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      text-align:center;
+    }
+    .step{
+      padding: 18px 10px;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .step:last-child{border-right:none}
+    .step .emoji{font-size: 28px; opacity:.92}
+    .step p{
+      margin: 10px 0 0;
+      font-weight: 900;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      font-size: 12px;
+      line-height: 1.2;
+    }
+    .step p span{
+      color: var(--yellow);
+      margin-right: 8px;
+    }
+
+    /* Sections */
+    section{position:relative}
+    .section{
+      padding: 86px 0;
+    }
+    .section-title{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 18px;
+      margin-bottom: 42px;
+      flex-wrap:wrap;
+    }
+    .kicker{
+      color: var(--red);
+      font-weight: 900;
+      letter-spacing:.32em;
+      text-transform: uppercase;
+      font-size: 11px;
+      margin:0 0 10px;
+    }
+    .h2{
+      margin:0;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      line-height: .95;
+      font-size: clamp(34px, 3.4vw, 58px);
+    }
+    .desc{
+      max-width: 340px;
+      margin: 0;
+      color: rgba(255,255,255,.5);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* Cards */
+    .grid-3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius-2xl);
+      padding: 18px;
+      overflow:hidden;
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+    }
+    .product{
+      position:relative;
+      transition: transform .25s ease;
+    }
+    .product:hover{transform: translateY(-6px)}
+    .rating-pill{
+      position:absolute; top:14px; right:14px;
+      display:flex; align-items:center; gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .rating-pill svg{width:14px; height:14px; color: var(--yellow)}
+    .product-img{
+      aspect-ratio: 1/1;
+      width:100%;
+      border-radius: 22px;
+      overflow:hidden;
+      margin-bottom: 14px;
+    }
+    .product-img img{
+      width:100%; height:100%;
+      object-fit:cover;
+      transition: transform .45s ease;
+    }
+    .product:hover .product-img img{transform: scale(1.08)}
+    .product h3{
+      margin: 0 0 8px;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-size: 18px;
+    }
+    .product-bottom{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top: 12px;
+    }
+    .price{
+      color: var(--yellow);
+      font-weight: 900;
+      font-size: 22px;
+    }
+    .bag{
+      width:44px; height:44px;
+      border-radius: 16px;
+      background: var(--red);
+      display:grid; place-items:center;
+      box-shadow: 0 18px 40px rgba(179,0,0,.22);
+      transition: transform .15s ease;
+    }
+    .bag:hover{transform: scale(1.06)}
+    .bag svg{width:20px; height:20px; color:#fff}
+
+    /* Combos */
+    .combo-wrap{
+      background: linear-gradient(135deg, var(--red), #800000);
+      border-radius: var(--radius-3xl);
+      border: 1px solid rgba(255,255,255,.20);
+      padding: 26px;
+      box-shadow: 0 20px 80px rgba(179,0,0,.22);
+      overflow:hidden;
+    }
+    .combo-grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+      align-items:center;
+    }
+    .combo-wrap .kicker2{
+      color: var(--yellow);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing:.30em;
+      font-size: 11px;
+      margin: 0 0 10px;
+      text-decoration: underline;
+      text-decoration-color: rgba(255,204,0,.35);
+      text-underline-offset: 8px;
+    }
+    .combo-title{
+      margin:0 0 12px;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      line-height: .92;
+      font-size: clamp(34px, 4.1vw, 70px);
+    }
+    .combo-p{
+      margin: 0 0 18px;
+      color: rgba(255,255,255,.82);
+      font-size: 16px;
+      line-height:1.7;
+      max-width: 420px;
+    }
+    .deal{
+      display:flex; gap:12px; align-items:flex-start;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 22px;
+      padding: 14px;
+      margin: 10px 0;
+    }
+    .deal .off{
+      background: var(--yellow);
+      color:#111;
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 6px 8px;
+      font-size: 11px;
+      flex:0 0 auto;
+    }
+    .deal h4{
+      margin:0 0 4px;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-style: italic;
+      letter-spacing: .04em;
+    }
+    .deal p{
+      margin:0;
+      color: rgba(255,255,255,.65);
+      font-size: 13px;
+      line-height:1.5;
+    }
+    .combo-img{
+      border-radius: 24px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 70px rgba(0,0,0,.40);
+    }
+    .combo-img img{width:100%; height:auto; display:block}
+
+    /* Features */
+    .features{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .feature{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 26px;
+      padding: 18px;
+      transition: background .2s ease;
+      min-height: 180px;
+    }
+    .feature:hover{background: rgba(255,255,255,.05)}
+    .feature .icon{
+      width:52px; height:52px;
+      border-radius: 18px;
+      background: rgba(179,0,0,.20);
+      display:grid; place-items:center;
+      margin-bottom: 12px;
+    }
+    .feature .icon svg{width:26px; height:26px; color: var(--red)}
+    .feature h4{
+      margin:0 0 8px;
+      color: var(--yellow);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-style: italic;
+      letter-spacing:.02em;
+      font-size: 16px;
+    }
+    .feature p{
+      margin:0;
+      color: rgba(255,255,255,.6);
+      font-size: 13px;
+      line-height:1.6;
+    }
+
+    /* Testimonials */
+    .testimonials{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .quote{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius-3xl);
+      padding: 22px;
+      transition: background .2s ease;
+    }
+    .quote:hover{background: rgba(255,255,255,.03)}
+    .stars{display:flex; gap:4px; margin-bottom: 14px}
+    .stars svg{width:18px; height:18px; color: var(--yellow)}
+    .qtext{
+      margin: 0 0 18px;
+      color: rgba(255,255,255,.82);
+      font-style: italic;
+      font-weight: 300;
+      line-height:1.7;
+      font-size: 16px;
+    }
+    .who{
+      display:flex; align-items:center; gap:10px;
+    }
+    .avatar{
+      width:46px; height:46px;
+      border-radius: 18px;
+      background: rgba(179,0,0,.20);
+      display:grid; place-items:center;
+      font-weight: 900;
+      color: var(--red);
+    }
+    .who h5{
+      margin:0;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing:.16em;
+      font-size: 12px;
+      line-height:1.1;
+    }
+    .who span{
+      display:block;
+      margin-top:6px;
+      font-size: 10px;
+      letter-spacing:.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.30);
+      font-weight: 800;
+    }
+
+    /* Location */
+    .loc-wrap{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius-3xl);
+      padding: 22px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 16px;
+      align-items:stretch;
+    }
+    .loc-left{padding: 10px 10px 10px 10px}
+    .loc-left .kicker{margin-top: 8px}
+    .loc-left h3{
+      margin: 0 0 16px;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height:1.0;
+      font-size: clamp(28px, 3.1vw, 44px);
+      font-style: italic;
+    }
+    .loc-row{
+      display:flex; gap:12px; align-items:flex-start;
+      color: rgba(255,255,255,.70);
+      margin: 14px 0;
+    }
+    .loc-row svg{width:22px; height:22px; flex:0 0 auto; margin-top:2px}
+    .loc-row .r{color: var(--red)}
+    .loc-row .y{color: var(--yellow)}
+    .loc-row p{margin:0; line-height:1.6}
+    .loc-map{
+      position:relative;
+      border-radius: 28px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      min-height: 320px;
+      filter: grayscale(1);
+      transition: filter .5s ease;
+      background:
+        linear-gradient(180deg, rgba(15,15,15,.30), rgba(15,15,15,.95)),
+        url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200')
+        center/cover no-repeat;
+    }
+    .loc-map:hover{filter: grayscale(0)}
+    .pin{
+      position:absolute;
+      inset:0;
+      display:grid; place-items:center;
+    }
+    .pin .bubble{
+      width:64px; height:64px;
+      border-radius:999px;
+      background: var(--red);
+      display:grid; place-items:center;
+      box-shadow: 0 22px 70px rgba(0,0,0,.45);
+      animation: bounce 1.2s infinite ease-in-out;
+      border: 4px solid rgba(255,255,255,.12);
+    }
+    .pin svg{width:30px; height:30px; color:#fff}
+    @keyframes bounce{
+      0%,100%{transform: translateY(0)}
+      50%{transform: translateY(-10px)}
+    }
+
+    /* Footer */
+    footer{
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 64px 0 28px;
+    }
+    .foot-grid{
+      display:grid;
+      grid-template-columns: 1.3fr .7fr .7fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+    .foot-brand h4{
+      margin:0 0 10px;
+      font-family: Montserrat, Poppins, sans-serif;
+      font-weight: 900;
+      letter-spacing:-0.03em;
+      text-transform: uppercase;
+      font-size: 22px;
+    }
+    .foot-brand h4 .y{color: var(--yellow)}
+    .foot-brand p{
+      margin:0 0 16px;
+      color: rgba(255,255,255,.40);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 420px;
+    }
+    .social{
+      display:flex; gap:10px; align-items:center;
+    }
+    .social a{
+      width:54px; height:54px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      display:grid; place-items:center;
+      transition: background .2s ease, transform .15s ease;
+    }
+    .social a:hover{transform: translateY(-1px)}
+    .social a.ig:hover{background: rgba(179,0,0,.20)}
+    .social a.wa:hover{background: rgba(37,211,102,.22)}
+    .social svg{width:22px; height:22px; color: var(--yellow)}
+    .social a.wa svg{color:#fff}
+
+    .foot-col h5{
+      margin: 8px 0 12px;
+      color: var(--yellow);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing:.18em;
+      font-style: italic;
+      font-size: 12px;
+    }
+    .foot-col ul{list-style:none; margin:0; padding:0}
+    .foot-col li{margin: 10px 0; color: rgba(255,255,255,.60); font-size: 13px}
+    .foot-col a:hover{color:#fff}
+
+    .copy{
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      color: rgba(255,255,255,.22);
+      text-transform: uppercase;
+      letter-spacing:.22em;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .copy .heart{
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .copy .heart svg{width:14px; height:14px; color: var(--red)}
+
+    /* WhatsApp floating */
+    .wa-float{
+      position:fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap: 10px;
+      padding: 8px;
+    }
+    .tooltip{
+      background:#fff;
+      color:#111;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      opacity:0;
+      transform: translateY(8px) scale(.96);
+      transition: all .28s ease;
+      position:relative;
+      pointer-events:none;
+    }
+    .tooltip.show{
+      opacity:1;
+      transform: translateY(0) scale(1);
+    }
+    .tooltip:after{
+      content:"";
+      position:absolute;
+      right: 18px;
+      bottom: -6px;
+      width: 12px;
+      height: 12px;
+      background:#fff;
+      transform: rotate(45deg);
+    }
+    .wa-btn{
+      width:60px; height:60px;
+      border-radius:999px;
+      background: var(--wa);
+      display:grid; place-items:center;
+      box-shadow: 0 22px 70px rgba(0,0,0,.45);
+      transition: transform .15s ease;
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .wa-btn:hover{transform: scale(1.07)}
+    .wa-btn:active{transform: scale(.95)}
+    .wa-btn svg{width:28px; height:28px; color:#fff}
+
+    /* Reveal animation (scroll) */
+    .reveal{
+      opacity:0;
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.show{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    /* Responsive /
+    @media (min-width: 1024px){
+      .nav-links{display:flex}
+    }
+    @media (max-width: 1024px){
+      .hero-grid{grid-template-columns: 1fr; gap: 18px}
+      .hero-right{justify-content:center}
+      .hero{padding-top: 120px}
+      .price-badge{right:-10px; top:-10px; width: 120px; height: 120px}
+      .price-badge .big{font-size: 38px}
+      .steps-grid{grid-template-columns: 1fr; gap:0}
+      .step{border-right:none; border-bottom: 1px solid rgba(255,255,255,.08)}
+      .step:last-child{border-bottom:none}
+      .grid-3{grid-template-columns: 1fr}
+      .features{grid-template-columns: 1fr 1fr}
+      .testimonials{grid-template-columns: 1fr}
+      .combo-grid{grid-template-columns: 1fr}
+      .loc-wrap{grid-template-columns: 1fr}
+      .foot-grid{grid-template-columns: 1fr}
+      .desc{max-width: 100%}
+    }
+    @media (max-width: 520px){
+      .brand h1{font-size: 16px}
+      .btn{width:100%}
+      .hero-cta{width:100%}
+      .price-badge{transform: rotate(8deg)}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <header class="nav" id="top">
+    <div class="container">
+      <div class="nav-row">
+        <a class="brand" href="#top" aria-label="Petiscos Burguer">
+          <span class="burger-icon" aria-hidden="true">🍔</span>
+          <div>
+            <h1><span class="w">Petiscos</span> <span class="y">Burguer</span></h1>
+            <div class="sub">Salinas • MG</div>
+          </div>
+        </a>
+
+        <nav class="nav-links" aria-label="Navegação principal">
+          <a href="#mais-pedidos">Mais Pedidos</a>
+          <a href="#combos">Combos</a>
+          <a href="#diferenciais">Diferenciais</a>
+          <a href="#localizacao">Localização</a>
+        </nav>
+
+        <a class="btn btn-primary" href="https://wa.me/5538999070140" target="_blank" rel="noopener">
+          Fazer Pedido
+          <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <main>
+    <section class="hero" aria-label="Capa">
+      <div class="blob red"></div>
+      <div class="blob yellow"></div>
+
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-left reveal">
+            <h2 class="headline">
+              <span class="w">O MELHOR</span><br>
+              <span class="y">HAMBÚRGUER</span><br>
+              <span class="w">DE SALINAS</span>
+            </h2>
+
+            <div class="badges" aria-label="Selos de autoridade">
+              <div class="badge">
+                <!-- star -->
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z" fill="currentColor"/>
+                </svg>
+                4.8 no Google
+              </div>
+              <div class="badge">
+                <!-- truck -->
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 7h11v10H3V7z" stroke="currentColor" stroke-width="2" opacity=".95"/>
+                  <path d="M14 10h4l3 3v4h-7v-7z" stroke="currentColor" stroke-width="2" opacity=".95"/>
+                  <circle cx="7" cy="18" r="2" fill="currentColor"/>
+                  <circle cx="18" cy="18" r="2" fill="currentColor"/>
+                </svg>
+                Entrega Rápida
+              </div>
+              <div class="badge">
+                <!-- check -->
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                100% Artesanal
+              </div>
+            </div>
+
+            <p class="lead">
+              O autêntico hambúrguer de Salinas agora com sistema de pedido online.
+              Sem esperas, sem erros, direto para a nossa grelha.
+            </p>
+
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="https://wa.me/5538999070140" target="_blank" rel="noopener">
+                Fazer pedido online
+                <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <a class="btn btn-ghost" href="#mais-pedidos">Ver cardápio</a>
+            </div>
+
+            <div class="micro"><span class="ok">✅</span> Pedido enviado direto para a cozinha</div>
+          </div>
+
+          <div class="hero-right reveal">
+            <div class="hero-media">
+              <img
+                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=1200"
+                alt="Hambúrguer Petiscos Burguer"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+              />
+              <div class="price-badge" aria-label="Preço a partir de R$25">
+                <div class="small">A partir de</div>
+                <div class="big">R$25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEPS -->
+    <section class="steps" aria-label="Pedido em 3 passos">
+      <div class="container">
+        <div class="steps-grid reveal">
+          <div class="step">
+            <div class="emoji">🍔</div>
+            <p><span>01.</span> Escolha seu Burger</p>
+          </div>
+          <div class="step">
+            <div class="emoji">💳</div>
+            <p><span>02.</span> Pague Online</p>
+          </div>
+          <div class="step">
+            <div class="emoji">🚀</div>
+            <p><span>03.</span> Receba em Casa</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIS PEDIDOS -->
+    <section id="mais-pedidos" class="section" aria-label="Os mais pedidos">
+      <div class="container">
+        <div class="section-title reveal">
+          <div>
+            <p class="kicker">Favoritos da Casa</p>
+            <h3 class="h2">Os Mais Pedidos</h3>
+          </div>
+          <p class="desc">
+            Nossa curadoria dos sabores que conquistaram o coração e o paladar dos nossos clientes.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <!-- Card 1 -->
+          <article class="card product reveal">
+            <div class="rating-pill" aria-label="Avaliação 4.9">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z" fill="currentColor"/>
+              </svg>
+              <span>4.9</span>
+            </div>
+            <div class="product-img">
+              <img src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&q=80&w=900" alt="Petisco Burger" loading="lazy" referrerpolicy="no-referrer">
+            </div>
+            <h3>Petisco Burger</h3>
+            <div class="product-bottom">
+              <div class="price">R$28,90</div>
+              <a class="bag" href="https://wa.me/5538999070140" target="_blank" rel="noopener" aria-label="Pedir Petisco Burger">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 7h12l-1 14H7L6 7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="card product reveal">
+            <div class="rating-pill" aria-label="Avaliação 4.8">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z" fill="currentColor"/>
+              </svg>
+              <span>4.8</span>
+            </div>
+            <div class="product-img">
+              <img src="https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&q=80&w=900" alt="Bacon Mania" loading="lazy" referrerpolicy="no-referrer">
+            </div>
+            <h3>Bacon Mania</h3>
+            <div class="product-bottom">
+              <div class="price">R$32,00</div>
+              <a class="bag" href="https://wa.me/5538999070140" target="_blank" rel="noopener" aria-label="Pedir Bacon Mania">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 7h12l-1 14H7L6 7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="card product reveal">
+            <div class="rating-pill" aria-label="Avaliação 5.0">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z" fill="currentColor"/>
+              </svg>
+              <span>5.0</span>
+            </div>
+            <div class="product-img">
+              <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&q=80&w=900" alt="Cheddar Double" loading="lazy" referrerpolicy="no-referrer">
+            </div>
+            <h3>Cheddar Double</h3>
+            <div class="product-bottom">
+              <div class="price">R$35,50</div>
+              <a class="bag" href="https://wa.me/5538999070140" target="_blank" rel="noopener" aria-label="Pedir Cheddar Double">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 7h12l-1 14H7L6 7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMBOS -->
+    <section id="combos" class="section" aria-label="Combos exclusivos">
+      <div class="container">
+        <div class="combo-wrap reveal">
+          <div class="combo-grid">
+            <div>
+              <p class="kicker2">Super Oferta</p>
+              <h3 class="combo-title">Combos<br>Exclusivos</h3>
+              <p class="combo-p">Hambúrguer + Batata G + Refri 500ml. Economia real de até R$15,00.</p>
+
+              <div class="deal">
+                <div class="off">-R$ 10</div>
+                <div>
+                  <h4>Combo Casal</h4>
+                  <p>2 Burgers + 2 Batatas + 1 Refri 1L</p>
+                </div>
+              </div>
+
+              <div class="deal">
+                <div class="off">-R$ 15</div>
+                <div>
+                  <h4>Combo Família</h4>
+                  <p>4 Burgers + 4 Batatas + 2 Refris 1L</p>
+                </div>
+              </div>
+
+              <a class="btn btn-yellow" href="https://wa.me/5538999070140" target="_blank" rel="noopener">
+                Aproveitar agora
+                <svg class="icon-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+
+            <div class="combo-img">
+              <img
+                src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&q=80&w=1200"
+                alt="Combo especial"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFERENCIAIS -->
+    <section id="diferenciais" class="section" aria-label="Diferenciais">
+      <div class="container">
+        <div class="section-title reveal" style="justify-content:center; text-align:center;">
+          <div>
+            <p class="kicker">Por que escolher a gente?</p>
+            <h3 class="h2" style="font-style:italic;">Diferenciais <span style="color:var(--yellow)">Petiscos</span></h3>
+          </div>
+        </div>
+
+        <div class="features">
+          <article class="feature reveal">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3 7h11v10H3V7z" stroke="currentColor" stroke-width="2"/>
+                <path d="M14 10h4l3 3v4h-7v-7z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="7" cy="18" r="2" fill="currentColor"/>
+                <circle cx="18" cy="18" r="2" fill="currentColor"/>
+              </svg>
+            </div>
+            <h4>Entrega Rápida</h4>
+            <p>Seu hambúrguer quentinho em menos de 40 minutos direto na sua porta.</p>
+          </article>
+
+          <article class="feature reveal">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h4>Artesanal</h4>
+            <p>Blend de carnes selecionadas e pães brioche produzidos diariamente.</p>
+          </article>
+
+          <article class="feature reveal">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 21s-7-4.4-9.5-9A5.7 5.7 0 0 1 12 5.8 5.7 5.7 0 0 1 21.5 12C19 16.6 12 21 12 21z" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </div>
+            <h4>Feito com Amor</h4>
+            <p>Cuidado em cada detalhe, da montagem à embalagem final para você.</p>
+          </article>
+
+          <article class="feature reveal">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6.4 6.4l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+            <h4>Suporte</h4>
+            <p>Atendimento via WhatsApp para tirar suas dúvidas e acompanhar seu pedido.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEPOIMENTOS -->
+    <section class="section" aria-label="Depoimentos">
+      <div class="container">
+        <div class="section-title reveal" style="justify-content:center; text-align:center;">
+          <div>
+            <p class="kicker" style="letter-spacing:.40em; font-style:italic;">Social Proof</p>
+            <h3 class="h2" style="font-style:italic;">
+              O que dizem<br><span style="color:var(--yellow)">nossos clientes</span>
+            </h3>
+          </div>
+        </div>
+
+        <div class="testimonials">
+          <article class="quote reveal">
+            <div class="stars" aria-label="5 estrelas">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+            </div>
+            <p class="qtext">"Melhor hambúrguer da cidade e o site é muito fácil de usar! Tudo chegou perfeito."</p>
+            <div class="who">
+              <div class="avatar">R</div>
+              <div>
+                <h5>Rodrigo Silva</h5>
+                <span>Cliente verificado</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="quote reveal">
+            <div class="stars" aria-label="5 estrelas">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+            </div>
+            <p class="qtext">"Pedido chegou quente e muito rápido. Recomendo o X-Tudo! Sabor inigualável."</p>
+            <div class="who">
+              <div class="avatar">A</div>
+              <div>
+                <h5>Amanda Costa</h5>
+                <span>Cliente verificado</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="quote reveal">
+            <div class="stars" aria-label="5 estrelas">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.3l-5.1 3 1.4-5.8L3.7 10l6-.5L12 4l2.3 5.5 6 .5-4.6 4.5 1.4 5.8-5.1-3z"/></svg>
+            </div>
+            <p class="qtext">"O sistema de pedido online é perfeito. Prático e rápido. Não troco por nada!"</p>
+            <div class="who">
+              <div class="avatar">J</div>
+              <div>
+                <h5>Junior Oliveira</h5>
+                <span>Cliente verificado</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCALIZAÇÃO -->
+    <section id="localizacao" class="section" aria-label="Localização">
+      <div class="container">
+        <div class="loc-wrap reveal">
+          <div class="loc-left">
+            <p class="kicker" style="text-decoration:underline; text-decoration-color:rgba(179,0,0,.35); text-underline-offset:8px;">
+              Onde estamos
+            </p>
+            <h3>
+              São Fidélis — <span style="color:var(--yellow)">Salinas/MG</span>
+            </h3>
+
+            <div class="loc-row">
+              <svg class="r" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="11" r="2.5" fill="currentColor"/>
+              </svg>
+              <p>Rua Beira Rio, Nº 235, São Fidélis<br>Salinas/MG — CEP 39560-000</p>
+            </div>
+
+            <div class="loc-row">
+              <svg class="y" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p>Todos os dias: <strong style="color:#fff">14:00 às 23:59</strong></p>
+            </div>
+
+            <a class="btn btn-primary" href="https://wa.me/5538999070140" target="_blank" rel="noopener">
+              Chamar no WhatsApp
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:18px;height:18px;">
+                <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6.4 6.4l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="loc-map" aria-label="Mapa ilustrativo">
+            <div class="pin" aria-hidden="true">
+              <div class="bubble">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="11" r="2.5" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="foot-grid reveal">
+        <div class="foot-brand">
+          <h4>Petiscos <span class="y">Burguer</span></h4>
+          <p>
+            Nascemos para redefinir o conceito de hambúrguer artesanal. Qualidade, sabor e um sistema de vendas focado na sua praticidade.
+          </p>
+          <div class="social">
+            <a class="ig" href="https://instagram.com/petiscos_burguer_" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="5" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/>
+                <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/>
+              </svg>
+            </a>
+            <a class="wa" href="https://wa.me/5538999070140" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 11.5A8.5 8.5 0 0 1 7 18.9L4 20l1.2-2.9A8.5 8.5 0 1 1 20 11.5z" stroke="currentColor" stroke-width="2" opacity=".95"/>
+                <path d="M9.2 9.2c.3-.7.6-.8 1-.8h.8c.2 0 .5 0 .7.5.2.5.8 1.8.9 1.9.1.2.1.4 0 .6-.1.2-.2.4-.4.6l-.4.4c-.1.1-.2.3-.1.5.1.2.6 1.2 1.4 1.9.9.8 1.7 1.1 2 .9.3-.2.9-1 1.1-1.3.2-.3.4-.2.6-.1.2.1 1.6.8 1.9.9.3.1.5.2.6.4.1.2.1 1.1-.3 1.7-.4.6-1.3 1.2-2.3
